@@ -1,0 +1,47 @@
+@import 'tailwindcss';
+@plugin '@tailwindcss/forms';
+@plugin '@tailwindcss/typography';
+
+/* TODO find a color for when you hover a button */
+@theme {
+	--color-background: #1a1a1d;
+	--color-text: #ffffff;
+	--color-folder: #00d1ff;
+	--color-highlight: #ff007c;
+	--color-secondary-bg: #444444;
+	--color-muted: #757575;
+	--color-bg-test: gray-800;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+}
+
+body {
+	overflow: hidden;
+	background-color: var(--color-background);
+	color: var(--color-text);
+	font-size: 16px;
+	line-height: 1.5;
+}
+
+::-webkit-scrollbar {
+	width: 10px;
+}
+
+::-webkit-scrollbar-track {
+	background: #fff;
+	border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+	background: #888;
+	border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+	background: #555;
+}
