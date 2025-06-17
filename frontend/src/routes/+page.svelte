@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { Greet } from '../lib/wailsjs/go/main/App';
 	import { SayHi } from '../lib/wailsjs/go/main/Utils';
-	import { GetFiles } from '../lib/wailsjs/go/goFiles/Files';
+	import { GetFiles, GetDefaultDirs } from '../lib/wailsjs/go/goFiles/Files';
 
 	type FileData = {
 		name: string;
@@ -17,10 +17,21 @@
 		base64?: string;
 	};
 
+	interface FileDataMap {
+		home: string;
+		desktop: string;
+		documents?: string;
+		downloads?: string;
+		pictures?: string;
+		music?: string;
+		videos?: string;
+		[key: string]: string | undefined;
+	}
+
 	function handleClick() {
-		GetFiles('C:/Users/rumbo/.testFoulderForFE')
-			.then((data: FileData[]) => {
-				console.log(data);
+		GetDefaultDirs()
+			.then((data: FileDataMap) => {
+				console.log(data.home);
 			})
 			.catch((error: Error) => {
 				console.log('Error in Test:', error);

@@ -18,6 +18,7 @@ func main() {
 	app := NewApp()
 	foo := NewUtils()
 	files := goFiles.NewFiles()
+	myFuzzySearch := goFiles.NewFuzzySearch()
 
 	// Create application with options
 	err := wails.Run(&options.App{
@@ -33,6 +34,7 @@ func main() {
 			app,
 			foo,
 			files,
+			myFuzzySearch,
 		},
 	})
 

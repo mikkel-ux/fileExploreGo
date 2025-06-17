@@ -2,14 +2,12 @@ package main
 
 import (
 	"fmt"
-	"io/fs"
-	"path/filepath"
-	"syscall"
 	"testing"
-	"time"
+
+	"github.com/adrg/xdg"
 )
 
-type FileData struct {
+/* type FileData struct {
 	Name        string `json:"name"`
 	Path        string `json:"path"`
 	Size        string  `json:"size"`
@@ -86,22 +84,61 @@ func TestFoo(t *testing.T) {
 		file.Name, file.Path, file.Size, file.Extension, file.Created, file.Modified, file.Accessed, file.FileType, file.IsHidden, file.IsReadOnly)
 	}
 
+} */
+
+func TestGetDefaultDirs(t *testing.T) {
+	dirs := make(map[string]string)
+	dirs["home"] = xdg.Home
+	if xdg.UserDirs.Desktop != "" {
+		dirs["desktop"] = xdg.UserDirs.Desktop
+	} else {
+		fmt.Println("Desktop directory not set")
+	}
+
+	if xdg.UserDirs.Download != "" {
+		dirs["download"] = xdg.UserDirs.Download
+	} else {
+		fmt.Println("Download directory not set")
+	}
+	if xdg.UserDirs.Documents != "" {
+		dirs["documents"] = xdg.UserDirs.Documents
+	} else {
+		fmt.Println("Documents directory not set")
+	}
+
+	if xdg.UserDirs.Music != "" {
+		dirs["music"] = xdg.UserDirs.Music
+	} else {
+		fmt.Println("Music directory not set")
+	}
+
+	if xdg.UserDirs.Pictures != "" {
+		dirs["pictures"] = xdg.UserDirs.Pictures
+	} else {
+		fmt.Println("Pictures directory not set")
+	}
+
+	if xdg.UserDirs.Videos != "" {
+		dirs["videos"] = xdg.UserDirs.Videos
+	} else {
+		fmt.Println("Videos directory not set")
+	}
+
+	for key, value := range dirs {
+		fmt.Printf("%s: %s\n", key, value)
+	}
 }
 
-
-
-
-
 /* gets creation time */
-	/* file, err := os.ReadDir("C:/Users/rumbo/.testFoulderForFE")
+/* file, err := os.ReadDir("C:/Users/rumbo/.testFoulderForFE")
+if err != nil {
+	log.Fatal(err)
+}
+for _, f := range file {
+	fileInfo, err := f.Info()
 	if err != nil {
 		log.Fatal(err)
-	} 
-	for _, f := range file {
-		fileInfo, err := f.Info()
-		if err != nil {
-			log.Fatal(err)
-		}
-		stat := fileInfo.Sys().(*syscall.Win32FileAttributeData)
-		creationTime := stat.CreationTime.Nanoseconds()
-		fmt.Println("time", creationTime) */
+	}
+	stat := fileInfo.Sys().(*syscall.Win32FileAttributeData)
+	creationTime := stat.CreationTime.Nanoseconds()
+	fmt.Println("time", creationTime) */

@@ -6,8 +6,9 @@ import (
 	"path/filepath"
 	"syscall"
 	"time"
-)
 
+	"github.com/adrg/xdg"
+)
 
 type Files struct{}
 
@@ -40,14 +41,14 @@ func formatSize(bytes int64) string {
 	return fmt.Sprintf("%.2f %s", size, UNITS[unit])
 }
 
-
-
 func (f *Files) GetFiles(dirPath string) ([]FileData, error) {
-	format := "2-1-2006 15:04:05";
+	format := "2-1-2006 15:04:05"
 	var files []FileData
 
 	error := filepath.WalkDir(dirPath, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {return err}
+		if err != nil {
+			return err
+		}
 		foo, err := d.Info()
 		if err != nil {
 			return err
@@ -70,15 +71,15 @@ func (f *Files) GetFiles(dirPath string) ([]FileData, error) {
 		extension := filepath.Ext(path)
 
 		fd := FileData{
-			Name: name,
-			Path: path,
-			Size: size,
-			Extension: extension,
-			Created: creationTime,
-			Modified: modifiedTime,
-			Accessed: accessedTime,
-			FileType: fileType,
-			IsHidden: isHidden,
+			Name:       name,
+			Path:       path,
+			Size:       size,
+			Extension:  extension,
+			Created:    creationTime,
+			Modified:   modifiedTime,
+			Accessed:   accessedTime,
+			FileType:   fileType,
+			IsHidden:   isHidden,
 			IsReadOnly: isReadOnly,
 			// Base64: "", // Base64 encoding can be added later if needed
 		}
@@ -90,4 +91,50 @@ func (f *Files) GetFiles(dirPath string) ([]FileData, error) {
 		return nil, fmt.Errorf("no files found in the directory: %s", dirPath)
 	}
 	return files, nil
+}
+
+type FileDataMap map[string]string
+
+func (f *Files) GetDefaultDirs() (FileDataMap, error) {
+	dirs := make(FileDataMap)
+	err := []error{}
+	dirs["home"] = xdg.Home
+	if xdg.UserDirs.Desktop != "" {
+		dirs["desktop"] = xdg.UserDirs.Desktop
+	} else {
+		err = append(err, fmt.Errorf("desktop directory not set"))
+	}
+
+	if xdg.UserDirs.Download != "" {
+		dirs["download"] = xdg.UserDirs.Download
+	} else {
+		err = append(err, fmt.Errorf("download directory not set"))
+	}
+	if xdg.UserDirs.Documents != "" {
+		dirs["documents"] = xdg.UserDirs.Documents
+	} else {
+		err = append(err, fmt.Errorf("documents directory not set"))
+	}
+
+	if xdg.UserDirs.Music != "" {
+		dirs["music"] = xdg.UserDirs.Music
+	} else {
+		err = append(err, fmt.Errorf("music directory not set"))
+	}
+
+	if xdg.UserDirs.Pictures != "" {
+		dirs["pictures"] = xdg.UserDirs.Pictures
+	} else {
+		err = append(err, fmt.Errorf("pictures directory not set"))
+	}
+
+	if xdg.UserDirs.Videos != "" {
+		dirs["videos"] = xdg.UserDirs.Videos
+	} else {
+		err = append(err, fmt.Errorf("videos directory not set"))
+	}
+	if err != nil {
+		return nil, fmt.Errorf("some default directories are not set: %v", err)
+	}
+	return dirs, nil
 }
