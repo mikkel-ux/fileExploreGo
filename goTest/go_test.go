@@ -2,42 +2,48 @@ package main
 
 import (
 	"fmt"
+	"io/fs"
+	"path/filepath"
+	"syscall"
 	"testing"
+	"time"
 
 	"github.com/adrg/xdg"
 )
 
-/* type FileData struct {
-	Name        string `json:"name"`
-	Path        string `json:"path"`
-	Size        string  `json:"size"`
-	Extension   string `json:"extension"`
-	Created     string `json:"created"`
-	Modified    string `json:"modified"`
-	Accessed    string `json:"accessed"`
-	FileType    string `json:"fileType"`
-	IsHidden    bool   `json:"isHidden"`
-	IsReadOnly  bool   `json:"isReadOnly"`
-	Base64      string `json:"base64,omitempty"`
+type FileData struct {
+	Name       string `json:"name"`
+	Path       string `json:"path"`
+	Size       string `json:"size"`
+	Extension  string `json:"extension"`
+	Created    string `json:"created"`
+	Modified   string `json:"modified"`
+	Accessed   string `json:"accessed"`
+	FileType   string `json:"fileType"`
+	IsHidden   bool   `json:"isHidden"`
+	IsReadOnly bool   `json:"isReadOnly"`
+	Base64     string `json:"base64,omitempty"`
 }
 
 func formatSize(bytes int64) string {
-	 UNITS := [5]string{"B", "KB", "MB", "GB", "TB"}
-	 size := float64(bytes)
-	 unit := 0
-	 for size >= 1024.0 && unit < len(UNITS)-1 {
-		 size /= 1024.0
-		 unit++
-	 }
-	 return fmt.Sprintf("%.2f %s", size, UNITS[unit])
+	UNITS := [5]string{"B", "KB", "MB", "GB", "TB"}
+	size := float64(bytes)
+	unit := 0
+	for size >= 1024.0 && unit < len(UNITS)-1 {
+		size /= 1024.0
+		unit++
+	}
+	return fmt.Sprintf("%.2f %s", size, UNITS[unit])
 }
 
 func TestFoo(t *testing.T) {
-	format := "2-1-2006 15:04:05";
+	format := "2-1-2006 15:04:05"
 	var files []FileData
 
-	err := filepath.WalkDir("C:/Users/rumbo/.testFoulderForFEs", func(path string, d fs.DirEntry, err error) error {
-		if err != nil {return fmt.Errorf("error accessing path %q: %v", path, err)}
+	err := filepath.WalkDir("C:/Users/rumbo/.testFoulderForFE", func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return fmt.Errorf("error accessing path %q: %v", path, err)
+		}
 		foo, err := d.Info()
 		if err != nil {
 			return err
@@ -60,15 +66,15 @@ func TestFoo(t *testing.T) {
 		extension := filepath.Ext(path)
 
 		fd := FileData{
-			Name: name,
-			Path: path,
-			Size: size,
-			Extension: extension,
-			Created: creationTime,
-			Modified: modifiedTime,
-			Accessed: accessedTime,
-			FileType: fileType,
-			IsHidden: isHidden,
+			Name:       name,
+			Path:       path,
+			Size:       size,
+			Extension:  extension,
+			Created:    creationTime,
+			Modified:   modifiedTime,
+			Accessed:   accessedTime,
+			FileType:   fileType,
+			IsHidden:   isHidden,
 			IsReadOnly: isReadOnly,
 			// Base64: "", // Base64 encoding can be added later if needed
 		}
@@ -76,15 +82,15 @@ func TestFoo(t *testing.T) {
 		files = append(files, fd)
 		return nil
 	})
-	if err != nil{
+	if err != nil {
 		fmt.Println("Error:", err)
 	}
 	for _, file := range files {
 		fmt.Printf("Name: %s, Path: %s, Size: %s, Extension: %s, Created: %s, Modified: %s, Accessed: %s, FileType: %s, IsHidden: %t, IsReadOnly: %t\n",
-		file.Name, file.Path, file.Size, file.Extension, file.Created, file.Modified, file.Accessed, file.FileType, file.IsHidden, file.IsReadOnly)
+			file.Name, file.Path, file.Size, file.Extension, file.Created, file.Modified, file.Accessed, file.FileType, file.IsHidden, file.IsReadOnly)
 	}
 
-} */
+}
 
 func TestGetDefaultDirs(t *testing.T) {
 	dirs := make(map[string]string)
