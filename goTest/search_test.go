@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/fs"
+	"os"
 	"path/filepath"
 	"strings"
 	"testing"
@@ -17,19 +17,23 @@ type dirData struct {
 }
 
 func TestFuzzysearch(t *testing.T) {
-	path := "C:/Users/rumbo/.testFoulderForFE/"
+	path := "C:/Users/rumbo/.testFoulderForFE"
 	dirPath := filepath.Dir(path)
 	last := filepath.Base(path)
 
 	var dirs []dirData
-	walkDirError := filepath.WalkDir(dirPath, func(path string, d fs.DirEntry, err error) error {
-		if err != nil {
-			return err
-		}
-		if d.IsDir() && path != dirPath {
-			cleanedPath := filepath.Clean(path)
-			name := d.Name()
-			path = replaceBackSlash(cleanedPath)
+
+	entries, err := os.ReadDir(dirPath)
+	if err != nil {
+		t.Fatalf("Error reading directory %v: %v", dirPath, err)
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			joinedPath := filepath.Join(dirPath, entry.Name())
+			fmt.Printf("Processing directory: %s\n", dirPath)
+			name := entry.Name()
+			path := replaceBackSlash(joinedPath)
 			points := 0
 			dirs = append(dirs, dirData{
 				Name:   name,
@@ -38,10 +42,6 @@ func TestFuzzysearch(t *testing.T) {
 			})
 			fmt.Printf("Directory: %s, Path: %s, Points: %d\n", name, path, points)
 		}
-		return nil
-	})
-	if walkDirError != nil {
-		t.Errorf("Error walking the path %v: %v", dirPath, walkDirError)
 	}
 
 	names := make([]string, len(dirs))

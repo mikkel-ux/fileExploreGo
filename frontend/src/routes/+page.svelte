@@ -3,7 +3,35 @@
 	import { SayHi } from '../lib/wailsjs/go/main/Utils';
 	import { GetFiles, GetDefaultDirs } from '../lib/wailsjs/go/goFiles/Files';
 
-	type FileData = {
+	import { onMount } from 'svelte';
+	import { goto } from '$app/navigation';
+	import { addToHistory } from '../stores/historyStore';
+	import { getPath, setPath } from '../stores/pathStore';
+	import { selectedFile } from '../stores/tabsStore';
+	import TabsDrag from '../components/tests/TabsDrag.svelte';
+	import Resize from '../components/tests/resize.svelte';
+	import Test from '../components/tests/Test.svelte';
+	import Sidebar from '../components/Sidebar.svelte';
+	import View from './View.svelte';
+	/* import FileFoulderInfo from '../components/FileFoulderInfo.svelte'; */
+
+	import ImageTest from '../components/tests/ImageTest.svelte';
+
+	import type { FileDataType } from '../../../type';
+
+	import Button from '../components/Button.svelte';
+	import ArrowButton from '../components/ArrowButton.svelte';
+
+	import PropsTest from '../components/PropsTest.svelte';
+
+	let value = $state(0);
+
+	const navigateToPage = () => {
+		goto('/expolorer');
+		addToHistory('/expolorer');
+	};
+
+	/* type FileData = {
 		name: string;
 		path: string;
 		size: string;
@@ -36,7 +64,13 @@
 			.catch((error: Error) => {
 				console.log('Error in Test:', error);
 			});
-	}
+	} */
 </script>
 
-<button class="btn" on:click={handleClick}>Say Hi</button>
+<section class="w-full h-full flex flex-row min-h-0">
+	<Sidebar />
+	<View />
+	<!-- {#if $selectedFile}
+		<FileFoulderInfo />
+	{/if} -->
+</section>

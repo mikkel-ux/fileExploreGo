@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"io/fs"
+	"os"
 	"path/filepath"
 	"syscall"
 	"testing"
@@ -37,10 +37,11 @@ func formatSize(bytes int64) string {
 }
 
 func TestFoo(t *testing.T) {
+	path := "C:/Users/rumbo/.testFoulderForFE"
 	format := "2-1-2006 15:04:05"
 	var files []FileData
 
-	err := filepath.WalkDir("C:/Users/rumbo/.testFoulderForFE", func(path string, d fs.DirEntry, err error) error {
+	/* err := filepath.WalkDir("C:/Users/rumbo/.testFoulderForFE", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
 			return fmt.Errorf("error accessing path %q: %v", path, err)
 		}
@@ -81,10 +82,53 @@ func TestFoo(t *testing.T) {
 
 		files = append(files, fd)
 		return nil
-	})
+	}) */
+
+	entries, err := os.ReadDir("C:/Users/rumbo/.testFoulderForFE")
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
+
+	for _, entry := range entries {
+		joinedPath := filepath.Join(path, entry.Name())
+		foo, err := entry.Info()
+		if err != nil {
+			fmt.Printf("Error getting info for %s: %v\n", entry.Name(), err)
+			return
+		}
+		stat := foo.Sys().(*syscall.Win32FileAttributeData)
+		name := entry.Name()
+		size := formatSize(foo.Size())
+		var fileType string
+		if entry.IsDir() {
+			fileType = "dir"
+		} else {
+			fileType = "file"
+		}
+		creationTime := time.Unix(0, stat.CreationTime.Nanoseconds()).Format(format)
+		modifiedTime := time.Unix(0, stat.LastWriteTime.Nanoseconds()).Format(format)
+		accessedTime := time.Unix(0, stat.LastAccessTime.Nanoseconds()).Format(format)
+		isHidden := stat.FileAttributes&syscall.FILE_ATTRIBUTE_HIDDEN != 0
+		isReadOnly := stat.FileAttributes&syscall.FILE_ATTRIBUTE_READONLY != 0
+		extension := filepath.Ext(joinedPath)
+
+		fd := FileData{
+			Name:       name,
+			Path:       joinedPath,
+			Size:       size,
+			Extension:  extension,
+			Created:    creationTime,
+			Modified:   modifiedTime,
+			Accessed:   accessedTime,
+			FileType:   fileType,
+			IsHidden:   isHidden,
+			IsReadOnly: isReadOnly,
+			// Base64: "", // Base64 encoding can be added later if needed
+		}
+
+		files = append(files, fd)
+	}
+
 	for _, file := range files {
 		fmt.Printf("Name: %s, Path: %s, Size: %s, Extension: %s, Created: %s, Modified: %s, Accessed: %s, FileType: %s, IsHidden: %t, IsReadOnly: %t\n",
 			file.Name, file.Path, file.Size, file.Extension, file.Created, file.Modified, file.Accessed, file.FileType, file.IsHidden, file.IsReadOnly)

@@ -1,11 +1,12 @@
 //# allFunctionsCalledOnLoad
 
 import { writable, get, derived } from "svelte/store";
-import { getCurrentWindow } from "@tauri-apps/api/window";
-import type { TabType, ViewType, FileDataType } from "../../type";
+/* TODO change this to wails way of closeing a window */
+/* import { getCurrentWindow } from "@tauri-apps/api/window"; */
+import type { TabType, ViewType, FileDataType } from "../../../type";
 import { v4 as uuidv4 } from "uuid";
 
-const appWindow = getCurrentWindow();
+/* const appWindow = getCurrentWindow(); */
 const firstTabUuid = uuidv4();
 
 //=========================
@@ -19,7 +20,7 @@ const nextTabId = writable(2);
 //=========================
 
 function close() {
-  appWindow.close();
+  /* appWindow.close(); */
 }
 
 //=========================
@@ -140,7 +141,10 @@ export const addTab = () => {
 
 export const removeTab = (id: number) => {
   if (get(tabsStore).length === 1) {
-    close();
+    /* TODO call close() */
+    /* close(); */
+    console.log("close window");
+    
   }
 
   const currentTabs = get(tabsStore);
