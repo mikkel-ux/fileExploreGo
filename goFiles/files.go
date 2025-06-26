@@ -2,7 +2,7 @@ package goFiles
 
 import (
 	"fmt"
-	"io/fs"
+	"os"
 	"path/filepath"
 	"syscall"
 	"time"
@@ -45,20 +45,22 @@ func (f *Files) GetFiles(dirPath string) ([]FileData, error) {
 	format := "2-1-2006 15:04:05"
 	var files []FileData
 
-	error := filepath.WalkDir(dirPath, func(path string, d fs.DirEntry, err error) error {
+	entries, err := os.ReadDir("C:/Users/rumbo/.testFoulderForFE")
+	if err != nil {
+		fmt.Println("Error:", err)
+	}
+
+	for _, entry := range entries {
+		joinedPath := filepath.Join(dirPath, entry.Name())
+		foo, err := entry.Info()
 		if err != nil {
-			return err
-		}
-		foo, err := d.Info()
-		if err != nil {
-			return err
+			return nil, fmt.Errorf("error getting info for %s: %v", entry.Name(), err)
 		}
 		stat := foo.Sys().(*syscall.Win32FileAttributeData)
-		path = filepath.Clean(path)
-		name := d.Name()
+		name := entry.Name()
 		size := formatSize(foo.Size())
 		var fileType string
-		if d.IsDir() {
+		if entry.IsDir() {
 			fileType = "dir"
 		} else {
 			fileType = "file"
@@ -68,11 +70,11 @@ func (f *Files) GetFiles(dirPath string) ([]FileData, error) {
 		accessedTime := time.Unix(0, stat.LastAccessTime.Nanoseconds()).Format(format)
 		isHidden := stat.FileAttributes&syscall.FILE_ATTRIBUTE_HIDDEN != 0
 		isReadOnly := stat.FileAttributes&syscall.FILE_ATTRIBUTE_READONLY != 0
-		extension := filepath.Ext(path)
+		extension := filepath.Ext(joinedPath)
 
 		fd := FileData{
 			Name:       name,
-			Path:       path,
+			Path:       joinedPath,
 			Size:       size,
 			Extension:  extension,
 			Created:    creationTime,
@@ -85,9 +87,8 @@ func (f *Files) GetFiles(dirPath string) ([]FileData, error) {
 		}
 
 		files = append(files, fd)
-		return nil
-	})
-	if error != nil {
+	}
+	if err != nil {
 		return nil, fmt.Errorf("no files found in the directory: %s", dirPath)
 	}
 	return files, nil
@@ -137,4 +138,50 @@ func (f *Files) GetDefaultDirs() (FileDataMap, error) {
 		return nil, fmt.Errorf("some default directories are not set: %v", err)
 	}
 	return dirs, nil
+}
+
+func (f *Files) GetPath(path string) (string, error) {
+	if path == "" {
+		return "", fmt.Errorf("path cannot be empty")
+	}
+
+	switch path {
+	case "home":
+		return xdg.Home, nil
+	case "desktop":
+		if xdg.UserDirs.Desktop != "" {
+			return xdg.UserDirs.Desktop, nil
+		}
+		return "", fmt.Errorf("desktop directory not set")
+	case "download":
+		if xdg.UserDirs.Download != "" {
+			return xdg.UserDirs.Download, nil
+		}
+		return "", fmt.Errorf("download directory not set")
+	case "documents":
+		if xdg.UserDirs.Documents != "" {
+			return xdg.UserDirs.Documents, nil
+		}
+		return "", fmt.Errorf("documents directory not set")
+	case "music":
+		if xdg.UserDirs.Music != "" {
+			return xdg.UserDirs.Music, nil
+		}
+		return "", fmt.Errorf("music directory not set")
+	case "pictures":
+		if xdg.UserDirs.Pictures != "" {
+			return xdg.UserDirs.Pictures, nil
+		}
+		return "", fmt.Errorf("pictures directory not set")
+	case "videos":
+		if xdg.UserDirs.Videos != "" {
+			return xdg.UserDirs.Videos, nil
+		}
+		return "", fmt.Errorf("videos directory not set")
+	default:
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			return "", fmt.Errorf("path does not exist: %s", path)
+		}
+		return path, nil
+	}
 }

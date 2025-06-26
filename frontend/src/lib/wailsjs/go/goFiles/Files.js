@@ -9,3 +9,7 @@ export function GetDefaultDirs() {
 export function GetFiles(arg1) {
   return window['go']['goFiles']['Files']['GetFiles'](arg1);
 }
+
+export function GetPath(arg1) {
+  return window['go']['goFiles']['Files']['GetPath'](arg1);
+}

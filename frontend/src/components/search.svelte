@@ -1,23 +1,26 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	/* import { invoke } from "@tauri-apps/api/core"; */
+	import { GetPath, GetFiles } from '../lib/wailsjs/go/goFiles/Files';
 	import { getPath, setPath } from '../stores/pathStore';
+	import { Searchdir } from '../lib/wailsjs/go/goFiles/fuzzySearch';
 
 	type dirType = {
 		name: string;
 	};
 
-	let dirs = $state<string[]>([]);
+	let dirs = $state<any[]>([]);
 	let showDirs = $state<boolean>(false);
-	let path = $state<string>('');
+	let path = $state<string>('C:/Users/rumbo/.testFoulderForFE');
 	let initialized = $state<boolean>(false);
 
 	async function searchFile() {
 		/* TODO search files */
-		/*   if (!initialized || path.trim() === "") return;
-    const foo: string[] = await invoke("search_files", { path });
-    dirs = foo;
-    showDirs = true; */
+		if (!initialized || path.trim() === '') return;
+		/* const foo: string[] = await invoke('search_files', { path }); */
+		const foo = await Searchdir(path);
+		dirs = foo;
+		showDirs = true;
 		console.log('searching for', path);
 	}
 
@@ -63,7 +66,7 @@
 		>
 			{#each dirs as dir}
 				<div class="p-2 border-b border-gray-300 hover:bg-gray-200 cursor-pointer text-black">
-					<p>{dir}</p>
+					<p>{dir.path}</p>
 				</div>
 			{/each}
 		</div>

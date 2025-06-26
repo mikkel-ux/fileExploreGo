@@ -5,3 +5,5 @@ import {goFiles} from '../models';
 export function GetDefaultDirs():Promise<goFiles.FileDataMap>;
 
 export function GetFiles(arg1:string):Promise<Array<goFiles.FileData>>;
+
+export function GetPath(arg1:string):Promise<string>;

@@ -1,5 +1,4 @@
 <script lang="ts">
-	/* import { getCurrentWindow } from "@tauri-apps/api/window"; */
 	import { dndzone } from 'svelte-dnd-action';
 	import TabList from './tabs/tabList.svelte';
 	/* import {
@@ -19,21 +18,19 @@
 	import { tick } from 'svelte';
 	import { get } from 'svelte/store';
 
-	/* const appWindow = getCurrentWindow(); */
-	/* TODo change these to use wails */
 	const minimize = () => {
-		/*  appWindow.minimize(); */
-		console.log('Minimize action triggered');
+		//@ts-ignore
+		window.runtime.WindowMinimise();
 	};
 
 	const toggleMaximize = () => {
-		/* appWindow.toggleMaximize(); */
-		console.log('Toggle maximize action triggered');
+		//@ts-ignore
+		window.runtime.WindowToggleMaximise();
 	};
 
 	const close = () => {
-		/* appWindow.close(); */
-		console.log('Close action triggered');
+		//@ts-ignore
+		window.runtime.Quit();
 	};
 
 	const addNewTab = () => {
@@ -70,8 +67,12 @@
 
 <svelte:window onkeydown={handleKeyDown} />
 
-<section data-tauri-drag-region class="col-span-2 row-start-1 row-end-1 flex pr-1 gap-5">
-	<div class="flex-1 gap-2 flex items-end overflow-hidden pt-3" data-tauri-drag-region>
+<section
+	data-tauri-drag-region
+	class="col-span-2 row-start-1 row-end-1 flex pr-1 gap-5"
+	style="--wails-draggable:drag"
+>
+	<div class="flex-1 gap-2 flex items-end overflow-hidden pt-3">
 		<div
 			onwheel={(e) => {
 				e.preventDefault();
@@ -93,11 +94,12 @@
 		<button
 			class="bg-secondary-bg text-white p-2 rounded-t-lg h-7 w-7 flex items-center justify-center justify-self-center
       hover:bg-highlight hover:opacity-90 transition-opacity transition-highlight ease-in-out"
+			style="--wails-draggable:no-drag"
 			onclick={addNewTab}>+</button
 		>
 	</div>
 
-	<div class="flex gap-2 items-center">
+	<div class="flex gap-2 items-center" style="--wails-draggable:no-drag">
 		<button onclick={minimize} class="hover:bg-gray-200">_</button>
 		<button onclick={toggleMaximize} class="hover:bg-gray-200">[]</button>
 		<button onclick={close} class="hover:bg-gray-200">X</button>

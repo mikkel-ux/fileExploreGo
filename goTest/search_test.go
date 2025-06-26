@@ -67,3 +67,14 @@ func TestFuzzysearch(t *testing.T) {
 func replaceBackSlash(path string) string {
 	return strings.ReplaceAll(path, "\\", "/")
 }
+
+func TestFooBar(t *testing.T) {
+	path := "C:/Users/rumbo/.testFoulderForFE/"
+	test := strings.LastIndex(path, "/")
+	if path[test+1:] == "" {
+		fmt.Println("No last index found after /")
+		return
+	}
+
+	fmt.Println("Last index of /:", path[test+1:])
+}

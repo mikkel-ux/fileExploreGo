@@ -22,9 +22,10 @@ func main() {
 
 	// Create application with options
 	err := wails.Run(&options.App{
-		Title:  "fileExploreGo",
-		Width:  1000,
-		Height: 500,
+		Title:     "fileExploreGo",
+		Width:     1000,
+		Height:    500,
+		Frameless: true,
 		AssetServer: &assetserver.Options{
 			Assets: assets,
 		},

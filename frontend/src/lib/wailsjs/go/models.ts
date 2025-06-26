@@ -32,6 +32,22 @@ export namespace goFiles {
 	        this.base64 = source["base64"];
 	    }
 	}
+	export class dirData {
+	    name: string;
+	    path: string;
+	    points: number;
+	
+	    static createFrom(source: any = {}) {
+	        return new dirData(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.name = source["name"];
+	        this.path = source["path"];
+	        this.points = source["points"];
+	    }
+	}
 
 }
 

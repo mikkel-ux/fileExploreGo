@@ -1,6 +1,6 @@
 <!-- https://wails.io/docs/guides/sveltekit/ -->
 <!-- https://v3alpha.wails.io/guides/customising-windows/ -->
-<script>
+<script lang="ts">
 	let { children } = $props();
 
 	import { goto } from '$app/navigation';
@@ -13,10 +13,9 @@
   } from "../stores/historyStore"; */
 	import { goBack, goForward, canGoBack, canGoForward, getHistory } from '../stores/tabsStore';
 	import '../app.css';
-	/* import Search from '../components/search.svelte'; */
+	import Search from '../components/search.svelte';
 	import ArrowButton from '../components/ArrowButton.svelte';
 	import TitleBar from '../components/TitleBar.svelte';
-	import Sidebar from '../components/Sidebar.svelte';
 
 	let canGoBackValue = $state(false);
 	let canGoForwardValue = $state(false);
@@ -56,7 +55,7 @@
 				on:click={() => navigateForward()}
 			></ArrowButton>
 		</section>
-		<!-- <Search /> -->
+		<Search />
 	</header>
 
 	{@render children()}
