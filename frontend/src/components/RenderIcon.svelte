@@ -20,7 +20,7 @@
 	{:else}
 		<img src={file.base64} alt="preview" class="object-contain h-full w-full" />
 	{/if}
-{:else if file.type === 'file'}
+{:else if file.type === 'file' || file.extension === '.pdf'}
 	<File size="100%" />
 {:else}
 	<p>no image</p>

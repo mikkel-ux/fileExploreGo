@@ -54,6 +54,7 @@ func isImage(filename string) bool {
 		".jpeg": true,
 		".png":  true,
 		".bmp":  true,
+		".gif":  true,
 		".tiff": true,
 		".webp": true,
 	}
@@ -67,6 +68,14 @@ func isGif(filename string) bool {
 	}
 	ext := strings.ToLower(filepath.Ext(filename))
 	return gifExtensions[ext]
+}
+
+func isPdf(filename string) bool {
+	pdfExtensions := map[string]bool{
+		".pdf": true,
+	}
+	ext := strings.ToLower(filepath.Ext(filename))
+	return pdfExtensions[ext]
 }
 
 func (f *Files) GetFiles(dirPath string) ([]FileData, error) {
@@ -121,6 +130,16 @@ func (f *Files) GetFiles(dirPath string) ([]FileData, error) {
 			}
 		}
 
+		if isPdf(name) {
+			base64, err := f.GetBase64OfImage(joinedPath)
+			if err != nil {
+				fmt.Println("Error getting base64 of PDF:", err)
+			} else {
+				/* "data:application/pdf;base64,%s" */
+				base64Data = fmt.Sprintf("data:application/pdf;base64,%s", base64.Data)
+			}
+		}
+
 		fd := FileData{
 			Name:       name,
 			Path:       joinedPath,
@@ -157,12 +176,6 @@ func (f *Files) GetFirstFrameOfGif(path string) (string, error) {
 	}
 
 	firstFrame := gifImage.Image[0]
-	/* newGif := &gif.GIF{
-		Image:     []*image.Paletted{firstFrame},
-		Delay:     []int{0},
-		LoopCount: 0,
-		Disposal:  []byte{gif.DisposalNone},
-	} */
 
 	var buf bytes.Buffer
 	err = gif.Encode(&buf, firstFrame, nil)

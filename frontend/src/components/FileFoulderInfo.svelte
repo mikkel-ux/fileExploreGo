@@ -1,12 +1,11 @@
 <script lang="ts">
 	import { fade, fly } from 'svelte/transition';
 	import { removeSelectedFile, selectedFile } from '../stores/tabsStore';
-	/* import { convertFileSrc } from "@tauri-apps/api/core"; */
 	import { isImage } from '../functions/checkFileExtension';
 	import { Folder, FileText } from '@lucide/svelte';
-	/* import { invoke } from "@tauri-apps/api/core"; */
 	import { onMount } from 'svelte';
 	import ImagePreview from './ImagePreview.svelte';
+	import { GetFiles, OpenFile, GetBase64OfImage } from '../lib/wailsjs/go/goFiles/Files';
 
 	let autoplay = $state<boolean>(false);
 
@@ -14,13 +13,9 @@
 		removeSelectedFile();
 	};
 
-	const getImageUrl = (path: string) => {
-		return convertFileSrc(path);
-	};
-
 	const openFile = async (path: string) => {
 		try {
-			await invoke('open_in_default_app', { path });
+			await OpenFile(path);
 		} catch (error) {
 			console.error('Error opening file:', error);
 		}
@@ -41,18 +36,18 @@
 	>
 		{#if $selectedFile}
 			<!-- Folder -->
-			{#if $selectedFile.type === 'folder'}
+			{#if $selectedFile.type === 'dir'}
 				<Folder size="50%" />
-			{:else if $selectedFile.extension.toLowerCase() === 'txt'}
+			{:else if $selectedFile.extension.toLowerCase() === '.txt'}
 				<!-- File Icon -->
 				<FileText size="50%" />
 			{:else if isImage($selectedFile)}
-				<ImagePreview file={$selectedFile} {autoplay} {getImageUrl} />
+				<ImagePreview file={$selectedFile} {autoplay} />
 
 				<!-- PDF -->
-			{:else if $selectedFile.extension.toLowerCase() === 'pdf'}
+			{:else if $selectedFile.extension.toLowerCase() === '.pdf'}
 				<iframe
-					src={getImageUrl($selectedFile.path)}
+					src={$selectedFile.base64}
 					class="w-full rounded-lg h-60"
 					scrolling="auto"
 					title="PDF Preview"
@@ -60,9 +55,6 @@
 			{:else}
 				<p class="text-gray-400">No preview available</p>
 			{/if}
-			<!-- {:else}
-      <p class="text-gray-400">No file selected</p>
-      -->
 		{/if}
 
 		<p class="text-sm text-center break-all">

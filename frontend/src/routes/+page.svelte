@@ -13,7 +13,7 @@
 	import Test from '../components/tests/Test.svelte';
 	import Sidebar from '../components/Sidebar.svelte';
 	import View from './View.svelte';
-	/* import FileFoulderInfo from '../components/FileFoulderInfo.svelte'; */
+	import FileFoulderInfo from '../components/FileFoulderInfo.svelte';
 
 	import ImageTest from '../components/tests/ImageTest.svelte';
 
@@ -70,7 +70,7 @@
 <section class="w-full h-full flex flex-row min-h-0">
 	<Sidebar />
 	<View />
-	<!-- {#if $selectedFile}
+	{#if $selectedFile}
 		<FileFoulderInfo />
-	{/if} -->
+	{/if}
 </section>

@@ -72,7 +72,7 @@
 	class="col-span-2 row-start-1 row-end-1 flex pr-1 gap-5"
 	style="--wails-draggable:drag"
 >
-	<div class="flex-1 gap-2 flex items-end overflow-hidden pt-3">
+	<div class="flex-1 gap-2 flex items-end overflow-hidden pt-3 select-none">
 		<div
 			onwheel={(e) => {
 				e.preventDefault();
