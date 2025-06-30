@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
+	"image/gif"
 	"os"
 	"path/filepath"
 	"syscall"
@@ -213,4 +214,25 @@ func TestBase64(t *testing.T) {
 	}
 
 	fmt.Printf("data %s, type %s \n", encoded, contentType)
+}
+
+func TestFirstFrameOfGif(t *testing.T) {
+	path := "C:\\Users\\rumbo\\OneDrive\\Billeder\\giphy.gif"
+	file, err := os.Open(path)
+	if err != nil {
+		panic(err)
+	}
+	defer file.Close()
+
+	gifImage, err := gif.DecodeAll(file)
+	if err != nil {
+		panic(err)
+	}
+	firstFrame := gifImage.Image[0].Pix
+	encoding := base64.StdEncoding.EncodeToString(firstFrame)
+	fmt.Println("First frame of GIF:", gifImage)
+	fmt.Println("============================")
+	fmt.Println("First frame of GIF:" + encoding)
+	/* encoded := base64.StdEncoding.EncodeToString(firstFrame.Pix) */
+	/* fmt.Printf("data:image/gif;base64,%s\n", encoded) */
 }

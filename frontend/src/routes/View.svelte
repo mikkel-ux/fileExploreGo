@@ -73,25 +73,6 @@
 			return;
 		}
 	};
-	/* TODO add convert image to file */
-	/* const getImageUrl = (path: string) => {
-		return convertFileSrc(path);
-	}; */
-
-	const getBase64Image = (imagePath: string): string => {
-		let imageSrc: string = '';
-		console.log('imagePath', imagePath);
-
-		GetBase64OfImage(imagePath)
-			.then((response: any) => {
-				/* data:image/png;base64 */
-				imageSrc = `data:image/${response.Type};base64, ${response.Data}`;
-			})
-			.catch((error: Error) => {
-				console.error('Error fetching base64 image:', error);
-			});
-		return imageSrc;
-	};
 </script>
 
 <section class="w-full h-full overflow-y-auto overflow-x-hidden">
@@ -113,8 +94,7 @@
 				}}
 			>
 				<div class="h-[60%] w-full flex items-center justify-center overflow-hidden">
-					<!-- <RenderIcon {file} {getBase64Image} {isImage} /> -->
-					<img src={getBase64Image(file.path)} alt="" />
+					<RenderIcon {file} {isImage} />
 				</div>
 
 				<p class="truncate w-full">

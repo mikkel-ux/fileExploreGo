@@ -12,6 +12,7 @@ export namespace goFiles {
 	    isHidden: boolean;
 	    isReadOnly: boolean;
 	    base64?: string;
+	    firstFrame?: string;
 	
 	    static createFrom(source: any = {}) {
 	        return new FileData(source);
@@ -30,6 +31,7 @@ export namespace goFiles {
 	        this.isHidden = source["isHidden"];
 	        this.isReadOnly = source["isReadOnly"];
 	        this.base64 = source["base64"];
+	        this.firstFrame = source["firstFrame"];
 	    }
 	}
 	export class ImageResponse {

@@ -109,7 +109,7 @@ export const tabsStore = writable<TabType[]>([
         title: "view 1",
         image: "image1.png",
         /* TODO change this back to / after testing */
-        history: ["C:/Users/rumbo/OneDrive/Billeder/testing"],
+        history: ["C:/Users/rumbo/OneDrive/Billeder"],
         currentIndex: 0,
       },
     ],

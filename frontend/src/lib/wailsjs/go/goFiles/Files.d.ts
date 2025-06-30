@@ -8,6 +8,8 @@ export function GetDefaultDirs():Promise<goFiles.FileDataMap>;
 
 export function GetFiles(arg1:string):Promise<Array<goFiles.FileData>>;
 
+export function GetFirstFrameOfGif(arg1:string):Promise<string>;
+
 export function GetPath(arg1:string):Promise<string>;
 
 export function OpenFile(arg1:string):Promise<void>;

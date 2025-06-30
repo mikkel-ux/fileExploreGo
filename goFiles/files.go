@@ -1,12 +1,15 @@
 package goFiles
 
 import (
+	"bytes"
 	"encoding/base64"
 	"fmt"
+	"image/gif"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"syscall"
 	"time"
 
@@ -31,6 +34,7 @@ type FileData struct {
 	IsHidden   bool   `json:"isHidden"`
 	IsReadOnly bool   `json:"isReadOnly"`
 	Base64     string `json:"base64,omitempty"`
+	FirstFrame string `json:"firstFrame,omitempty"`
 }
 
 func formatSize(bytes int64) string {
@@ -42,6 +46,27 @@ func formatSize(bytes int64) string {
 		unit++
 	}
 	return fmt.Sprintf("%.2f %s", size, UNITS[unit])
+}
+
+func isImage(filename string) bool {
+	imageExtensions := map[string]bool{
+		".jpg":  true,
+		".jpeg": true,
+		".png":  true,
+		".bmp":  true,
+		".tiff": true,
+		".webp": true,
+	}
+	ext := strings.ToLower(filepath.Ext(filename))
+	return imageExtensions[ext]
+}
+
+func isGif(filename string) bool {
+	gifExtensions := map[string]bool{
+		".gif": true,
+	}
+	ext := strings.ToLower(filepath.Ext(filename))
+	return gifExtensions[ext]
 }
 
 func (f *Files) GetFiles(dirPath string) ([]FileData, error) {
@@ -74,6 +99,27 @@ func (f *Files) GetFiles(dirPath string) ([]FileData, error) {
 		isHidden := stat.FileAttributes&syscall.FILE_ATTRIBUTE_HIDDEN != 0
 		isReadOnly := stat.FileAttributes&syscall.FILE_ATTRIBUTE_READONLY != 0
 		extension := filepath.Ext(joinedPath)
+		var base64Data string
+		var gifFirstFrame string
+
+		if isImage(name) {
+			base64, err := f.GetBase64OfImage(joinedPath)
+			if err != nil {
+				fmt.Println("Error getting base64 of image:", err)
+			} else {
+				/* "data:image/%s;base64,%s" */
+				base64Data = fmt.Sprintf("data:image/%s;base64,%s", base64.Type, base64.Data)
+			}
+		}
+
+		if isGif(name) {
+			firstFrame, err := f.GetFirstFrameOfGif(joinedPath)
+			if err != nil {
+				fmt.Println("Error getting first frame of GIF:", err)
+			} else {
+				gifFirstFrame = firstFrame
+			}
+		}
 
 		fd := FileData{
 			Name:       name,
@@ -86,7 +132,8 @@ func (f *Files) GetFiles(dirPath string) ([]FileData, error) {
 			Type:       fileType,
 			IsHidden:   isHidden,
 			IsReadOnly: isReadOnly,
-			// Base64: "", // Base64 encoding can be added later if needed
+			Base64:     base64Data,
+			FirstFrame: gifFirstFrame,
 		}
 
 		files = append(files, fd)
@@ -95,6 +142,37 @@ func (f *Files) GetFiles(dirPath string) ([]FileData, error) {
 		return nil, fmt.Errorf("no files found in the directory: %s", dirPath)
 	}
 	return files, nil
+}
+
+func (f *Files) GetFirstFrameOfGif(path string) (string, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return "", fmt.Errorf("error opening GIF file: %v", err)
+	}
+	defer file.Close()
+
+	gifImage, err := gif.DecodeAll(file)
+	if err != nil {
+		return "", fmt.Errorf("error decoding GIF: %v", err)
+	}
+
+	firstFrame := gifImage.Image[0]
+	/* newGif := &gif.GIF{
+		Image:     []*image.Paletted{firstFrame},
+		Delay:     []int{0},
+		LoopCount: 0,
+		Disposal:  []byte{gif.DisposalNone},
+	} */
+
+	var buf bytes.Buffer
+	err = gif.Encode(&buf, firstFrame, nil)
+	if err != nil {
+		return "", fmt.Errorf("error encoding GIF: %v", err)
+	}
+
+	encoded := base64.StdEncoding.EncodeToString(buf.Bytes())
+	/* fmt.Printf("data:image/gif;base64,%s\n", encoded) */
+	return fmt.Sprintf("data:image/gif;base64,%s", encoded), nil
 }
 
 type FileDataMap map[string]string
@@ -203,7 +281,7 @@ func (f *Files) OpenFile(path string) error {
 
 	err := cmd.Run()
 	if err != nil {
-		fmt.Printf("Oh, darling, it seems you've made a mess again! Error opening file: %v\n", err)
+		fmt.Printf("error %v\n", err)
 		return fmt.Errorf("error opening file: %w", err)
 	}
 	fmt.Println("File opened successfully!")
@@ -227,9 +305,10 @@ func (f *Files) GetBase64OfImage(path string) (*ImageResponse, error) {
 	if contentType == "" {
 		contentType = "application/octet-stream"
 	}
+	splitContentType := strings.Split(contentType, ".")
 
 	return &ImageResponse{
 		Data: encoded,
-		Type: contentType,
+		Type: splitContentType[1],
 	}, nil
 }

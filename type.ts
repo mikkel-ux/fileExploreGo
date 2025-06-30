@@ -33,4 +33,5 @@ export type FileDataType = {
   isHidden: boolean;
   isReadOnly: boolean;
   base64: string;
+  firstFrame?: string;
 };
