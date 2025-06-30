@@ -108,7 +108,8 @@ export const tabsStore = writable<TabType[]>([
         id: firstTabUuid,
         title: "view 1",
         image: "image1.png",
-        history: ["/"],
+        /* TODO change this back to / after testing */
+        history: ["C:/Users/rumbo/OneDrive/Billeder/testing"],
         currentIndex: 0,
       },
     ],
@@ -289,7 +290,7 @@ export const goForward = () => {
 export const getCurrentPath = () => {
   let currentPath: string = "";
   const tabs = get(tabsStore);
-  const activeTabIdVal = get(activeTabId);
+  const activeTabIdVal = get(activeTabId); 
   const activeView = findActiveView(tabs, activeTabIdVal);
   if (activeView) {
     currentPath = activeView.history[activeView.currentIndex];

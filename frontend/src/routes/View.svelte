@@ -3,7 +3,7 @@
 	import { goto } from '$app/navigation';
 	import { updateHistory, getCurrentPath } from '../stores/tabsStore';
 	import { secsectFile, selectedFile, removeSelectedFile } from '../stores/tabsStore';
-	/* import { invoke, convertFileSrc } from '@tauri-apps/api/core'; */
+	import { GetFiles, OpenFile, GetBase64OfImage } from '../lib/wailsjs/go/goFiles/Files';
 
 	import { isImage } from '../functions/checkFileExtension';
 	import RenderIcon from '../components/RenderIcon.svelte';
@@ -12,6 +12,7 @@
 	import BigItemListTest from '../components/tests/BigItemListTest.svelte';
 	import LazyLoadingTest from '../components/tests/LazyLoadingTest.svelte';
 	import { Grid } from 'svelte-virtual';
+	import { string } from '@tensorflow/tfjs';
 
 	let files = $state<FileDataType[]>([]);
 	let clickTimer = $state<NodeJS.Timeout | null>(null);
@@ -20,18 +21,16 @@
 
 	let test = $state<number>(0);
 
-	/* TODO add get files in dir */
-	/* onMount(async () => {
-		try {
-			let result: any[] = await invoke('get_files_dirs_in_dir', {
-				path: getCurrentPath()
+	onMount(async () => {
+		GetFiles(getCurrentPath())
+			.then((result: any) => {
+				files = result;
+				console.log('files', files);
+			})
+			.catch((error) => {
+				console.error('Error fetching files:', error);
 			});
-			files = result;
-			console.log('files', files);
-		} catch (error) {
-			console.log('error', error);
-		}
-	}); */
+	});
 
 	const handleClick = (file: FileDataType) => {
 		if (clickTimer) {
@@ -63,25 +62,36 @@
 	};
 
 	const openFile = async (file: FileDataType) => {
-		if (file.type === 'folder') {
+		if (file.type === 'dir') {
 			updateHistory(file.path);
 			removeSelectedFile();
 			return;
 		}
-		/* try {
-			await invoke('open_in_default_app', { path: file.path });
+		try {
+			await OpenFile(file.path);
 		} catch (error) {
-			console.error('Error opening file:', error);
-		} */
-		/* TODO add open file */
-		console.log('Opening file:', file);
-		// await invoke('open_file', { path: file.path });
-		// console.log('File opened:', file.path);
+			return;
+		}
 	};
 	/* TODO add convert image to file */
 	/* const getImageUrl = (path: string) => {
 		return convertFileSrc(path);
 	}; */
+
+	const getBase64Image = (imagePath: string): string => {
+		let imageSrc: string = '';
+		console.log('imagePath', imagePath);
+
+		GetBase64OfImage(imagePath)
+			.then((response: any) => {
+				/* data:image/png;base64 */
+				imageSrc = `data:image/${response.Type};base64, ${response.Data}`;
+			})
+			.catch((error: Error) => {
+				console.error('Error fetching base64 image:', error);
+			});
+		return imageSrc;
+	};
 </script>
 
 <section class="w-full h-full overflow-y-auto overflow-x-hidden">
@@ -102,9 +112,10 @@
 					handleKeyDown(e, file);
 				}}
 			>
-				<!-- <div class="h-[60%] w-full flex items-center justify-center overflow-hidden">
-					<RenderIcon {file} {getImageUrl} {isImage} />
-				</div> -->
+				<div class="h-[60%] w-full flex items-center justify-center overflow-hidden">
+					<!-- <RenderIcon {file} {getBase64Image} {isImage} /> -->
+					<img src={getBase64Image(file.path)} alt="" />
+				</div>
 
 				<p class="truncate w-full">
 					{file.name}

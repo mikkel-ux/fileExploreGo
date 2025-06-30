@@ -8,7 +8,7 @@ export namespace goFiles {
 	    created: string;
 	    modified: string;
 	    accessed: string;
-	    fileType: string;
+	    type: string;
 	    isHidden: boolean;
 	    isReadOnly: boolean;
 	    base64?: string;
@@ -26,10 +26,24 @@ export namespace goFiles {
 	        this.created = source["created"];
 	        this.modified = source["modified"];
 	        this.accessed = source["accessed"];
-	        this.fileType = source["fileType"];
+	        this.type = source["type"];
 	        this.isHidden = source["isHidden"];
 	        this.isReadOnly = source["isReadOnly"];
 	        this.base64 = source["base64"];
+	    }
+	}
+	export class ImageResponse {
+	    data: string;
+	    type: string;
+	
+	    static createFrom(source: any = {}) {
+	        return new ImageResponse(source);
+	    }
+	
+	    constructor(source: any = {}) {
+	        if ('string' === typeof source) source = JSON.parse(source);
+	        this.data = source["data"];
+	        this.type = source["type"];
 	    }
 	}
 	export class dirData {

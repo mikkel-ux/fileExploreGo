@@ -33,7 +33,6 @@ func (fs *fuzzySearch) Searchdir(path string) ([]dirData, error) {
 		dirPath = filepath.Dir(path)
 		last = filepath.Base(path)
 	}
-	fmt.Printf("Searching in directory: %s for last part: %s\n", dirPath, last)
 
 	var dirs []dirData
 

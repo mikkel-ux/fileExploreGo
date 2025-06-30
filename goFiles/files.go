@@ -1,9 +1,12 @@
 package goFiles
 
 import (
+	"encoding/base64"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
+	"runtime"
 	"syscall"
 	"time"
 
@@ -24,7 +27,7 @@ type FileData struct {
 	Created    string `json:"created"`
 	Modified   string `json:"modified"`
 	Accessed   string `json:"accessed"`
-	FileType   string `json:"fileType"`
+	Type       string `json:"type"`
 	IsHidden   bool   `json:"isHidden"`
 	IsReadOnly bool   `json:"isReadOnly"`
 	Base64     string `json:"base64,omitempty"`
@@ -45,7 +48,7 @@ func (f *Files) GetFiles(dirPath string) ([]FileData, error) {
 	format := "2-1-2006 15:04:05"
 	var files []FileData
 
-	entries, err := os.ReadDir("C:/Users/rumbo/.testFoulderForFE")
+	entries, err := os.ReadDir(dirPath)
 	if err != nil {
 		fmt.Println("Error:", err)
 	}
@@ -80,7 +83,7 @@ func (f *Files) GetFiles(dirPath string) ([]FileData, error) {
 			Created:    creationTime,
 			Modified:   modifiedTime,
 			Accessed:   accessedTime,
-			FileType:   fileType,
+			Type:       fileType,
 			IsHidden:   isHidden,
 			IsReadOnly: isReadOnly,
 			// Base64: "", // Base64 encoding can be added later if needed
@@ -184,4 +187,49 @@ func (f *Files) GetPath(path string) (string, error) {
 		}
 		return path, nil
 	}
+}
+
+func (f *Files) OpenFile(path string) error {
+	var cmd *exec.Cmd
+
+	switch runtime.GOOS {
+	case "windows":
+		cmd = exec.Command("cmd", "/C", "start", path)
+	case "darwin":
+		cmd = exec.Command("open", path)
+	case "linux":
+		cmd = exec.Command("xdg-open", path)
+	}
+
+	err := cmd.Run()
+	if err != nil {
+		fmt.Printf("Oh, darling, it seems you've made a mess again! Error opening file: %v\n", err)
+		return fmt.Errorf("error opening file: %w", err)
+	}
+	fmt.Println("File opened successfully!")
+	return nil
+
+}
+
+type ImageResponse struct {
+	Data string `json:"data"`
+	Type string `json:"type"`
+}
+
+func (f *Files) GetBase64OfImage(path string) (*ImageResponse, error) {
+	bytes, err := os.ReadFile(path)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read file: %v", err)
+	}
+
+	encoded := base64.StdEncoding.EncodeToString(bytes)
+	contentType := filepath.Ext(path)
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
+
+	return &ImageResponse{
+		Data: encoded,
+		Type: contentType,
+	}, nil
 }

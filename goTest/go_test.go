@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/base64"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -192,3 +193,24 @@ for _, f := range file {
 	stat := fileInfo.Sys().(*syscall.Win32FileAttributeData)
 	creationTime := stat.CreationTime.Nanoseconds()
 	fmt.Println("time", creationTime) */
+
+type ImageResponse struct {
+	Data string `json:"data"`
+	Type string `json:"type"`
+}
+
+func TestBase64(t *testing.T) {
+	imagePath := "C:\\Users\\rumbo\\OneDrive\\Billeder\\myNewImage.png"
+	bytes, err := os.ReadFile(imagePath)
+	if err != nil {
+		t.Fatalf("Failed to read file: %v", err)
+	}
+
+	encoded := base64.StdEncoding.EncodeToString(bytes)
+	contentType := filepath.Ext(imagePath)
+	if contentType == "" {
+		contentType = "application/octet-stream"
+	}
+
+	fmt.Printf("data %s, type %s \n", encoded, contentType)
+}

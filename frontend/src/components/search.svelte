@@ -1,54 +1,55 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	/* import { invoke } from "@tauri-apps/api/core"; */
 	import { GetPath, GetFiles } from '../lib/wailsjs/go/goFiles/Files';
 	import { getPath, setPath } from '../stores/pathStore';
 	import { Searchdir } from '../lib/wailsjs/go/goFiles/fuzzySearch';
 
 	type dirType = {
 		name: string;
+		path: string;
+		points: number;
 	};
 
-	let dirs = $state<any[]>([]);
+	let dirs = $state<dirType[]>([]);
 	let showDirs = $state<boolean>(false);
 	let path = $state<string>('C:/Users/rumbo/.testFoulderForFE');
 	let initialized = $state<boolean>(false);
 
-	async function searchFile() {
-		/* TODO search files */
-		if (!initialized || path.trim() === '') return;
-		/* const foo: string[] = await invoke('search_files', { path }); */
-		const foo = await Searchdir(path);
-		dirs = foo;
-		showDirs = true;
-		console.log('searching for', path);
-	}
-
 	$effect(() => {
-		searchFile();
+		if (initialized && path.trim() !== '') {
+			searchFile();
+		}
 	});
 
 	onMount(async () => {
-		/* TODO get path */
-		/* path = await invoke('get_path', { path: 'home' }); */
-		setPath(path);
-		console.log('path', path);
+		/* GetPath('home')
+			.then((res) => {
+				path = res;
+			})
+			.catch((err) => {
+				console.error('Error getting path:', err);
+			});
+		setPath(path); */
 		initialized = true;
 	});
 
-	const test = async () => {
-		let test: String[] = [];
-		/* TODO get foulders */
-		/* try {
-			test = await invoke('get_foulders', { path });
-		} catch (error) {
-			console.log('error', error);
-		} */
-		const prettyPath = test.map((item) => {
-			return item.replace(/\\/g, '/');
-		});
-		console.log('test', prettyPath);
-	};
+	async function searchFile() {
+		if (!initialized || path.trim() === '') return;
+		Searchdir(path)
+			.then((res) => {
+				dirs = res;
+				console.log('dirs', dirs);
+			})
+			.catch((err) => {
+				console.error('Error searching files:', err);
+			});
+		/* showDirs = true; */
+		console.log('searching for', path);
+	}
+
+	function changePath(newPath: string) {
+		console.log('Saving path:', newPath);
+	}
 </script>
 
 <div class="relative w-full">
@@ -58,14 +59,24 @@
 		class="border p-2 rounded-lg bg-gray-100 text-black w-full"
 		autocomplete="off"
 		onfocus={() => (showDirs = true)}
-		onblur={() => setTimeout(() => (showDirs = false), 50)}
+		onblur={() => setTimeout(() => (showDirs = false), 100)}
 	/>
 	{#if showDirs && dirs.length}
 		<div
 			class="absolute left-0 right-0 bg-gray-100 max-h-30 overflow-y-auto border rounded-lg shadow-lg z-10"
 		>
 			{#each dirs as dir}
-				<div class="p-2 border-b border-gray-300 hover:bg-gray-200 cursor-pointer text-black">
+				<div
+					class="p-2 border-b border-gray-300 hover:bg-gray-200 cursor-pointer text-black"
+					role="button"
+					tabindex="0"
+					onclick={() => changePath(dir.path)}
+					onkeydown={(e) => {
+						if (e.key === 'Enter') {
+							changePath(dir.path);
+						}
+					}}
+				>
 					<p>{dir.path}</p>
 				</div>
 			{/each}
